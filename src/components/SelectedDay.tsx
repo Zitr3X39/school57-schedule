@@ -94,11 +94,6 @@ function SelectedDayPager({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 8 }}
       transition={{ type: "spring", stiffness: 260, damping: 26 }}
-      drag={onChangeDate ? "x" : false}
-      dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.18}
-      onDragEnd={onDragEnd}
-      className="touch-pan-y select-none"
     >
       <GlassCard className="p-6 md:p-7" highlight>
         <div className="flex items-baseline justify-between gap-4">
@@ -168,7 +163,13 @@ function SelectedDayPager({
         {lessons.length === 0 ? (
           <div className="mt-6 text-sm text-fg-muted">В этот день уроков нет.</div>
         ) : (
-          <ol className="mt-6 space-y-2">
+          <motion.ol
+            className="mt-6 space-y-2 touch-pan-y select-none"
+            drag={onChangeDate && days.length > 1 ? "x" : false}
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.18}
+            onDragEnd={onDragEnd}
+          >
             {lessons.map((l, i) => (
               <motion.li
                 key={l.id}
@@ -184,7 +185,7 @@ function SelectedDayPager({
                 <LessonCardSimple lesson={l} />
               </motion.li>
             ))}
-          </ol>
+          </motion.ol>
         )}
 
         {onChangeDate && days.length > 1 && (
