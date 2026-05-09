@@ -3,8 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "tsx scripts/build-data.ts",
     "dev": "next dev",
-    "build": "next build",
+    "build:data": "tsx scripts/build-data.ts",
+    "build": "tsx scripts/build-data.ts && next build",
+    "build:pages": "tsx scripts/build-data.ts && BUILD_TARGET=pages next build",
     "start": "next start",
     "lint": "eslint"
   },
