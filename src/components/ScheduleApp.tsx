@@ -171,11 +171,17 @@ export function ScheduleApp() {
 }
 
 function useHydrated(): boolean {
-  return useSyncExternalStore(
-    () => () => undefined,
-    () => true,
-    () => false,
-  );
+  return useSyncExternalStore(noopSubscribe, getTrue, getFalse);
+}
+
+function noopSubscribe() {
+  return () => undefined;
+}
+function getTrue() {
+  return true;
+}
+function getFalse() {
+  return false;
 }
 
 function Onboarding({ onPick }: { onPick: (className: string) => void }) {
