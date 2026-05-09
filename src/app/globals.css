@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #04060d;
+  --color-bg-elev: #080b18;
+  --color-fg: #f1f4ff;
+  --color-fg-muted: #8a92ad;
+  --color-accent: #5eead4;
+  --color-accent-2: #a78bfa;
+  --color-accent-3: #38bdf8;
+  --color-warn: #fbbf24;
+  --color-danger: #f97171;
+  --color-success: #34d399;
+  --font-display: var(--font-onest), "Onest", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: var(--font-manrope), "Manrope", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+:root {
+  color-scheme: dark;
+  --bg: var(--color-bg);
+  --bg-elev: var(--color-bg-elev);
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "ss01", "cv11", "cv02";
+}
+
+body {
+  background:
+    radial-gradient(1200px 600px at 12% -10%, rgba(94, 234, 212, 0.10), transparent 60%),
+    radial-gradient(900px 600px at 110% 0%, rgba(167, 139, 250, 0.10), transparent 60%),
+    radial-gradient(800px 500px at 50% 110%, rgba(56, 189, 248, 0.06), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+  min-height: 100dvh;
+}
+
+::selection {
+  background: rgba(94, 234, 212, 0.35);
+  color: white;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Subtle grain overlay for the entire app */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.04 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  z-index: 0;
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2.4s infinite;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Hide scrollbar in horizontal pill rows */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
