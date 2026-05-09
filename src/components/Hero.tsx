@@ -104,7 +104,7 @@ function CurrentSlot({ current, next, minutesLeft, minutesUntilNext }: CurrentSl
             )}
           </div>
           <div className="space-y-1">
-            <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+            <div className="h-1.5 rounded-full bg-surface overflow-hidden">
               <motion.div
                 className="h-full bg-gradient-to-r from-[color:var(--color-accent)] to-[color:var(--color-accent-2)]"
                 initial={{ width: 0 }}
@@ -125,7 +125,7 @@ function CurrentSlot({ current, next, minutesLeft, minutesUntilNext }: CurrentSl
   // No current lesson — show "перемена" or "пока ничего"
   if (next && minutesUntilNext !== null) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 md:p-6 space-y-4">
+      <div className="rounded-2xl border border-surface bg-surface p-5 md:p-6 space-y-4">
         <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[color:var(--color-warn)]">
           <Coffee className="size-3.5" /> перемена
         </div>
@@ -140,7 +140,7 @@ function CurrentSlot({ current, next, minutesLeft, minutesUntilNext }: CurrentSl
     );
   }
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 md:p-6">
+    <div className="rounded-2xl border border-surface bg-surface p-5 md:p-6">
       <div className="text-xs uppercase tracking-[0.18em] text-[color:var(--color-fg-muted)]">
         свободно
       </div>
@@ -165,7 +165,7 @@ interface NextSlotProps {
 function NextSlot({ next, minutesUntilNext, hasCurrent }: NextSlotProps) {
   if (!next) {
     return (
-      <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5 md:p-6">
+      <div className="rounded-2xl border border-surface bg-surface p-5 md:p-6">
         <div className="text-xs uppercase tracking-[0.18em] text-[color:var(--color-fg-muted)]">
           далее
         </div>
@@ -176,7 +176,7 @@ function NextSlot({ next, minutesUntilNext, hasCurrent }: NextSlotProps) {
     );
   }
   return (
-    <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5 md:p-6 space-y-3 group transition hover:border-white/15">
+    <div className="rounded-2xl border border-surface bg-surface p-5 md:p-6 space-y-3 group transition hover:border-surface-strong">
       <div className="flex items-center justify-between text-xs uppercase tracking-[0.18em] text-[color:var(--color-fg-muted)]">
         <span>далее · {next.lessonNumber} урок</span>
         {hasCurrent && minutesUntilNext !== null && (
@@ -197,7 +197,7 @@ function NextSlot({ next, minutesUntilNext, hasCurrent }: NextSlotProps) {
       {next.room && (
         <button
           type="button"
-          className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-[color:var(--color-accent)] hover:text-white transition"
+          className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-[color:var(--color-accent)] hover:text-fg transition"
         >
           куда идти
           <ArrowRight className="size-3.5 group-hover:translate-x-0.5 transition" />

@@ -55,7 +55,7 @@ export function SubjectAnalytics({ week, group }: Props) {
                     {s.count} ур · {Math.round(s.minutes / 60 * 10) / 10} ч
                   </span>
                 </div>
-                <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+                <div className="h-1.5 rounded-full bg-surface overflow-hidden">
                   <motion.div
                     className="h-full bg-gradient-to-r from-[color:var(--color-accent)] via-[color:var(--color-accent-3)] to-[color:var(--color-accent-2)]"
                     initial={{ width: 0 }}
@@ -117,7 +117,7 @@ function Heatmap({ heatmap }: { heatmap: HeatmapEntry[] }) {
                 key={idx}
                 className={cn(
                   "h-5 rounded-md transition",
-                  h ? "bg-[color:var(--color-accent)]/40" : "bg-white/5",
+                  h ? "bg-[color:var(--color-accent)]/40" : "bg-surface",
                   h && "shadow-[0_0_10px_rgba(94,234,212,0.18)]",
                 )}
                 title={`Урок ${idx + 1}`}

@@ -75,9 +75,9 @@ export function CommandPalette({
             onClick={(e) => e.stopPropagation()}
             className="w-full max-w-xl"
           >
-            <div className="rounded-3xl border border-white/10 bg-[#0a0e1c]/85 backdrop-blur-2xl shadow-[0_30px_80px_-30px_rgba(0,0,0,0.9)] overflow-hidden">
+            <div className="rounded-3xl border border-surface bg-[#0a0e1c]/85 backdrop-blur-2xl shadow-[0_30px_80px_-30px_rgba(0,0,0,0.9)] overflow-hidden">
               <Command label="Командная строка" shouldFilter={false}>
-                <div className="flex items-center gap-3 px-5 py-4 border-b border-white/5">
+                <div className="flex items-center gap-3 px-5 py-4 border-b border-surface">
                   <Search className="size-4 text-[color:var(--color-fg-muted)]" />
                   <Command.Input
                     autoFocus
@@ -86,7 +86,7 @@ export function CommandPalette({
                     onValueChange={setQuery}
                     className="flex-1 bg-transparent outline-none text-[15px] placeholder:text-[color:var(--color-fg-muted)]/70"
                   />
-                  <kbd className="hidden md:inline-flex items-center rounded px-1.5 py-0.5 text-[10px] tabular-nums bg-white/5 text-[color:var(--color-fg-muted)] border border-white/10 font-mono">
+                  <kbd className="hidden md:inline-flex items-center rounded px-1.5 py-0.5 text-[10px] tabular-nums bg-surface text-[color:var(--color-fg-muted)] border border-surface font-mono">
                     esc
                   </kbd>
                 </div>
@@ -127,14 +127,14 @@ export function CommandPalette({
                           }}
                           className={cn(
                             "flex items-center gap-3 rounded-2xl px-3 py-2.5 cursor-pointer",
-                            "data-[selected=true]:bg-white/5",
+                            "data-[selected=true]:bg-surface",
                           )}
                         >
                           <div className="flex-1 min-w-0">
                             <div className="text-sm font-medium truncate">
                               {r.title}
                               {r.lesson?.group !== null && r.lesson?.group !== undefined && (
-                                <span className="ml-2 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-[0.16em] bg-white/5 text-[color:var(--color-fg-muted)] border border-white/10">
+                                <span className="ml-2 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-[0.16em] bg-surface text-[color:var(--color-fg-muted)] border border-surface">
                                   гр {r.lesson.group}
                                 </span>
                               )}
@@ -155,7 +155,7 @@ export function CommandPalette({
                     </Command.Group>
                   )}
                 </Command.List>
-                <div className="flex items-center justify-between px-5 py-2.5 border-t border-white/5 text-[10px] uppercase tracking-[0.18em] text-[color:var(--color-fg-muted)]">
+                <div className="flex items-center justify-between px-5 py-2.5 border-t border-surface text-[10px] uppercase tracking-[0.18em] text-[color:var(--color-fg-muted)]">
                   <span className="inline-flex items-center gap-1.5">
                     <Sparkles className="size-3" /> естественный язык
                   </span>
@@ -219,7 +219,7 @@ function SuggestionsBlock({ group, week, onChangeClass, onChangeGroup, onPick }:
                 key={d.date}
                 type="button"
                 onClick={() => onPick(d.date)}
-                className="rounded-xl px-2 py-2 text-xs hover:bg-white/5 transition flex flex-col items-center gap-0.5"
+                className="rounded-xl px-2 py-2 text-xs hover:bg-surface-2 transition flex flex-col items-center gap-0.5"
               >
                 <span className="uppercase tracking-[0.18em] text-[color:var(--color-fg-muted)]">
                   {DAY_OF_WEEK_RU_SHORT[d.dayOfWeek]}
@@ -236,11 +236,11 @@ function SuggestionsBlock({ group, week, onChangeClass, onChangeGroup, onPick }:
         <button
           type="button"
           onClick={onChangeClass}
-          className="text-xs text-[color:var(--color-accent)] hover:text-white transition"
+          className="text-xs text-[color:var(--color-accent)] hover:text-fg transition"
         >
           Сменить класс
         </button>
-        <div className="inline-flex rounded-full border border-white/10 bg-white/[0.03] p-0.5">
+        <div className="inline-flex rounded-full border border-surface bg-surface p-0.5">
           {([1, 2] as const).map((g) => (
             <button
               key={g}
@@ -249,8 +249,8 @@ function SuggestionsBlock({ group, week, onChangeClass, onChangeGroup, onPick }:
               className={cn(
                 "px-3 py-1 rounded-full text-xs font-medium tabular-nums",
                 group === g
-                  ? "bg-white/10 text-white"
-                  : "text-white/60 hover:text-white",
+                  ? "bg-surface text-fg"
+                  : "text-fg-muted hover:text-fg",
               )}
             >
               гр {g}
@@ -272,7 +272,7 @@ function SuggestRow({
   hint: string;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-white/5 transition">
+    <div className="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-surface-2 transition">
       <div className="text-[color:var(--color-fg-muted)]">{icon}</div>
       <div className="flex-1">
         <div className="text-sm">{label}</div>

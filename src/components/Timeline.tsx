@@ -10,6 +10,7 @@ import type { WeekSchedule } from "@/lib/schedule/types";
 import { cn, formatCountdown } from "@/lib/utils";
 import { timeToMinutes } from "@/lib/schedule/bell";
 import { todayInSchoolTz, nowMinutesInSchoolTz } from "@/lib/now";
+import { subjectGradient } from "@/lib/subject-colors";
 
 interface TimelineProps {
   week: WeekSchedule | null;
@@ -55,7 +56,11 @@ export function Timeline({ week, group }: TimelineProps) {
       <ol className="mt-6 relative">
         <div
           aria-hidden
-          className="absolute left-[1.55rem] top-2 bottom-2 w-px bg-gradient-to-b from-white/8 via-white/12 to-white/4"
+          className="absolute left-[1.55rem] top-2 bottom-2 w-px"
+          style={{
+            background:
+              "linear-gradient(to bottom, var(--border) 0%, var(--border-strong) 50%, var(--border) 100%)",
+          }}
         />
         {lessons.map((l, i) => {
           const derived = deriveStatus(l, now);
@@ -76,7 +81,12 @@ export function Timeline({ week, group }: TimelineProps) {
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: 0.04 * i, ease: "easeOut" }}
+                transition={{
+                  type: "spring",
+                  stiffness: 320,
+                  damping: 28,
+                  delay: 0.035 * i,
+                }}
               >
                 <LessonRow lesson={derived} />
               </motion.div>
@@ -106,22 +116,37 @@ interface LessonRowProps {
 function LessonRow({ lesson }: LessonRowProps) {
   const isCurrent = lesson.status === "current";
   const isPast = lesson.status === "past";
+  const grad = subjectGradient(lesson.subject);
   return (
     <div
       className={cn(
-        "group relative grid grid-cols-[3rem_1fr] gap-4 items-start py-3.5 pl-2 pr-3 rounded-2xl transition",
-        isCurrent && "bg-white/[0.04]",
-        !isCurrent && !isPast && "hover:bg-white/[0.02]",
+        "group relative grid grid-cols-[3rem_1fr] gap-4 items-start py-3.5 pl-2 pr-3 rounded-2xl transition-colors",
+        isCurrent && "bg-surface",
+        !isCurrent && !isPast && "hover:bg-surface-2",
       )}
+      style={
+        isCurrent
+          ? {
+              background: `linear-gradient(90deg, ${grad.fade} 0%, var(--surface) 60%)`,
+            }
+          : undefined
+      }
     >
       <div className="relative flex flex-col items-center pt-0.5">
         <div
           className={cn(
             "z-10 size-3 rounded-full border-2 transition",
-            isCurrent && "border-[color:var(--color-accent)] bg-[color:var(--color-accent)] shadow-[0_0_18px_rgba(94,234,212,0.7)]",
-            isPast && "border-white/15 bg-white/5",
-            !isCurrent && !isPast && "border-white/30 bg-white/0 group-hover:border-[color:var(--color-accent-2)]",
+            isCurrent && "shadow-[0_0_18px_currentColor]",
+            isPast && "border-surface-strong bg-surface",
+            !isCurrent && !isPast && "border-surface-strong bg-transparent group-hover:scale-125",
           )}
+          style={
+            isCurrent
+              ? { color: grad.solid, background: grad.solid, borderColor: grad.solid }
+              : !isPast
+                ? { borderColor: grad.solid + "80" }
+                : undefined
+          }
         />
         <span
           className={cn(
@@ -136,11 +161,11 @@ function LessonRow({ lesson }: LessonRowProps) {
       </div>
       <div className={cn("flex-1 min-w-0", isPast && "opacity-50")}>
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <span className="font-display text-lg md:text-xl text-white truncate">
+          <span className="font-display text-lg md:text-xl text-fg truncate">
             {lesson.subject}
           </span>
           {lesson.group !== null && (
-            <span className="px-2 py-0.5 rounded-full text-[10px] uppercase tracking-[0.16em] bg-white/5 border border-white/10 text-[color:var(--color-fg-muted)]">
+            <span className="px-2 py-0.5 rounded-full text-[10px] uppercase tracking-[0.16em] bg-surface border border-surface text-[color:var(--color-fg-muted)]">
               группа {lesson.group}
             </span>
           )}
@@ -151,7 +176,7 @@ function LessonRow({ lesson }: LessonRowProps) {
           )}
         </div>
         <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[color:var(--color-fg-muted)]">
-          <span className="tabular-nums text-white/70">
+          <span className="tabular-nums text-fg-soft">
             {lesson.startTime}–{lesson.endTime}
           </span>
           {lesson.room && (
@@ -166,7 +191,7 @@ function LessonRow({ lesson }: LessonRowProps) {
           )}
         </div>
         {lesson.notes && (
-          <div className="mt-1.5 text-[12px] text-white/60">
+          <div className="mt-1.5 text-[12px] text-fg-muted">
             {lesson.notes}
           </div>
         )}
@@ -186,7 +211,7 @@ function BreakRow({ start, end, isCurrent }: BreakRowProps) {
   return (
     <div className="grid grid-cols-[3rem_1fr] items-center text-[11px] text-[color:var(--color-fg-muted)] py-1.5">
       <div className="flex justify-center">
-        <span className="size-1.5 rounded-full bg-white/15" />
+        <span className="size-1.5 rounded-full bg-surface-2" />
       </div>
       <div
         className={cn(

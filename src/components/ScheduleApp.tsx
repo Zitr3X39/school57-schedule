@@ -84,7 +84,7 @@ export function ScheduleApp() {
       />
       <main className="flex-1 mx-auto w-full max-w-6xl px-4 md:px-6 py-5 md:py-10 pb-24 lg:pb-12 space-y-8">
         {error && (
-          <div className="rounded-2xl border border-[color:var(--color-danger)]/30 bg-[color:var(--color-danger)]/8 px-4 py-3 text-sm text-white">
+          <div className="rounded-2xl border border-[color:var(--color-danger)]/30 bg-[color:var(--color-danger)]/8 px-4 py-3 text-sm text-fg">
             Не удалось загрузить расписание: {(error as Error).message}
           </div>
         )}
@@ -114,6 +114,7 @@ export function ScheduleApp() {
                 group={group}
                 date={effectiveSelectedDate}
                 onClose={() => setSelectedDate(null)}
+                onChangeDate={(iso) => setSelectedDate(iso)}
               />
             </div>
 
@@ -213,7 +214,7 @@ function Footer({
           href={source.url}
           target="_blank"
           rel="noreferrer noopener"
-          className="hover:text-white"
+          className="hover:text-fg"
         >
           источник: keo.gov39.ru
         </a>
