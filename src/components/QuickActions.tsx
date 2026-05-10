@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import {
   CalendarDays,
   Clock,
-  Compass,
+  ClipboardCheck,
   Sparkles,
   GraduationCap,
   Search,
@@ -18,6 +18,10 @@ interface QuickActionsProps {
   onSetGroup: (g: 1 | 2) => void;
   onOpenCommand: () => void;
   onScrollTo: (id: "today" | "week" | "analytics") => void;
+  onOpenTeachers: () => void;
+  onOpenRooms: () => void;
+  /** Number of homework assignments left this week. */
+  homeworkRemaining: number;
 }
 
 interface Action {
@@ -34,6 +38,9 @@ export function QuickActions({
   onSetGroup,
   onOpenCommand,
   onScrollTo,
+  onOpenTeachers,
+  onOpenRooms,
+  homeworkRemaining,
 }: QuickActionsProps) {
   const actions: Action[] = [
     {
@@ -66,19 +73,20 @@ export function QuickActions({
       id: "rooms",
       label: "Кабинеты",
       icon: MapPin,
-      onClick: () => onOpenCommand(),
+      onClick: onOpenRooms,
     },
     {
       id: "teachers",
       label: "Учителя",
       icon: GraduationCap,
-      onClick: () => onOpenCommand(),
+      onClick: onOpenTeachers,
     },
     {
-      id: "where",
-      label: "Куда сейчас",
-      icon: Compass,
-      onClick: () => onOpenCommand(),
+      id: "homework",
+      label: homeworkRemaining > 0 ? "Домашка" : "Домашка готова",
+      icon: ClipboardCheck,
+      onClick: () => onScrollTo("week"),
+      badge: homeworkRemaining > 0 ? String(homeworkRemaining) : undefined,
     },
   ];
 

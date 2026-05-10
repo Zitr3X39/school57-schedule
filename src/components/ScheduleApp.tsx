@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useSyncExternalStore } from "react";
+import { useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { motion } from "framer-motion";
 import { Hero } from "./Hero";
 import { Timeline } from "./Timeline";
@@ -9,6 +9,7 @@ import { SubjectAnalytics } from "./SubjectAnalytics";
 import { QuickActions } from "./QuickActions";
 import { ClassPicker } from "./ClassPicker";
 import { CommandPalette } from "./CommandPalette";
+import { DirectoryPanel } from "./DirectoryPanel";
 import { TopBar } from "./TopBar";
 import { BottomNav } from "./BottomNav";
 import { SelectedDay } from "./SelectedDay";
@@ -16,6 +17,7 @@ import { LoadingShell } from "./LoadingShell";
 import { useStore } from "@/store/useStore";
 import { useScheduleQuery } from "@/hooks/useSchedule";
 import { todayInSchoolTz } from "@/lib/now";
+import { homeworkStats } from "@/lib/homework";
 
 export function ScheduleApp() {
   const hydrated = useHydrated();
@@ -24,9 +26,11 @@ export function ScheduleApp() {
   const setSelectedClass = useStore((s) => s.setSelectedClass);
   const setGroup = useStore((s) => s.setGroup);
   const hasOnboarded = useStore((s) => s.hasOnboarded);
+  const homeworkDone = useStore((s) => s.homeworkDone);
 
   const [pickerOpen, setPickerOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [directoryKind, setDirectoryKind] = useState<"teachers" | "rooms" | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"today" | "week" | "analytics">("today");
 
@@ -45,6 +49,11 @@ export function ScheduleApp() {
   const today = todayInSchoolTz();
   // Derive at render time — no setState in effect.
   const effectiveSelectedDate = selectedDate ?? (week ? today.iso : null);
+
+  const hwStats = useMemo(
+    () => homeworkStats(week, group, homeworkDone),
+    [week, group, homeworkDone],
+  );
 
   function scrollToSection(id: "today" | "week" | "analytics") {
     setActiveTab(id);
@@ -105,6 +114,9 @@ export function ScheduleApp() {
               onSetGroup={setGroup}
               onOpenCommand={() => setPaletteOpen(true)}
               onScrollTo={scrollToSection}
+              onOpenTeachers={() => setDirectoryKind("teachers")}
+              onOpenRooms={() => setDirectoryKind("rooms")}
+              homeworkRemaining={hwStats.remaining}
             />
 
             <div ref={todayRef} className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
@@ -166,6 +178,14 @@ export function ScheduleApp() {
         }}
         onChangeClass={() => setPickerOpen(true)}
         onChangeGroup={setGroup}
+      />
+
+      <DirectoryPanel
+        open={directoryKind !== null}
+        onClose={() => setDirectoryKind(null)}
+        kind={directoryKind ?? "teachers"}
+        week={week}
+        group={group}
       />
     </div>
   );
