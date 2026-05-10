@@ -84,6 +84,16 @@ export function isoDateInRange(iso: IsoDate, range: WeekRange): boolean {
   return iso >= range.weekStart && iso <= range.weekEnd;
 }
 
+/** Convert ISO date "YYYY-MM-DD" to weekId-style "YYYYMMDD". */
+export function isoToWeekId(iso: IsoDate): string {
+  return iso.replace(/-/g, "");
+}
+
+/** Convert weekId "YYYYMMDD" to ISO date "YYYY-MM-DD". */
+export function weekIdToIso(weekId: string): IsoDate {
+  return `${weekId.slice(0, 4)}-${weekId.slice(4, 6)}-${weekId.slice(6, 8)}`;
+}
+
 /** Format a Russian date range like "4 — 10 мая 2026". */
 export function formatWeekRangeRu(range: WeekRange): string {
   const months = [
