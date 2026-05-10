@@ -36,6 +36,20 @@ interface ScheduleFileShape {
   isDemoData?: boolean;
 }
 
+export interface WeekMetaEntry {
+  weekId: string;
+  weekStart: string; // ISO YYYY-MM-DD
+  weekEnd: string; // ISO YYYY-MM-DD
+}
+
+export interface WeeksMeta {
+  /** Server-computed default week (built when site is generated). */
+  current: string;
+  /** Sorted YYYYMMDD ids for which schedule data exists. */
+  available: string[];
+  byWeekId: Record<string, WeekMetaEntry>;
+}
+
 export async function fetchClassesIndex(): Promise<SchoolClassesIndex> {
   const res = await fetch(`${BASE_PATH}/data/index.json`, {
     cache: "force-cache",
@@ -47,9 +61,19 @@ export async function fetchClassesIndex(): Promise<SchoolClassesIndex> {
   return json;
 }
 
+export async function fetchWeeksMeta(): Promise<WeeksMeta> {
+  const res = await fetch(`${BASE_PATH}/data/weeks.json`, {
+    cache: "force-cache",
+  });
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status} loading weeks meta`);
+  }
+  return (await res.json()) as WeeksMeta;
+}
+
 export interface FetchScheduleArgs {
   className: string;
-  weekId?: string;
+  weekId: string;
 }
 
 export interface ScheduleResponseShape {
@@ -62,13 +86,12 @@ export interface ScheduleResponseShape {
 export async function fetchSchedule(
   args: FetchScheduleArgs,
 ): Promise<ScheduleResponseShape> {
-  const filename = encodeURIComponent(args.className);
-  const res = await fetch(`${BASE_PATH}/data/schedule/${filename}.json`, {
-    cache: "force-cache",
-  });
+  const className = encodeURIComponent(args.className);
+  const url = `${BASE_PATH}/data/schedule/weeks/${args.weekId}/${className}.json`;
+  const res = await fetch(url, { cache: "force-cache" });
   if (!res.ok) {
     throw new Error(
-      `Расписание для класса ${args.className} не найдено (HTTP ${res.status})`,
+      `Расписание для ${args.className} (неделя ${args.weekId}) не найдено (HTTP ${res.status})`,
     );
   }
   const json = (await res.json()) as ScheduleFileShape;

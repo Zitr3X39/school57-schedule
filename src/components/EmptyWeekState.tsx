@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Calendar, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { GlassCard } from "./GlassCard";
 import {
   classifyVacationWeek,
@@ -24,16 +24,19 @@ interface Props {
 export function EmptyWeekState({ range, shift, onReset }: Props) {
   const vacation = classifyVacationWeek(range.weekStart);
   const future = shift > 0;
+  const past = shift < 0;
   const headline = vacation
     ? vacationLabel(vacation)
-    : future
-    ? "Расписание ещё не опубликовано"
-    : "Прошедшая неделя";
+    : past
+    ? "Прошедшая неделя"
+    : "Расписание ещё не опубликовано";
   const sub = vacation
     ? "В этот период занятий нет."
+    : past
+    ? "Мы храним только последние недели — школа не отдаёт более старые расписания."
     : future
-    ? "Школа выложит расписание ближе к началу недели. Когда подключим автообновление — оно появится здесь автоматически."
-    : "Мы храним только текущую опубликованную неделю — старые расписания школа не отдаёт.";
+    ? "Школа ещё не выложила расписание этой недели. Когда оно появится — обнови страницу."
+    : "Расписание этой недели сейчас отсутствует.";
 
   return (
     <motion.div
@@ -55,18 +58,16 @@ export function EmptyWeekState({ range, shift, onReset }: Props) {
           <p className="text-sm text-[color:var(--color-fg-muted)] leading-relaxed">
             {sub}
           </p>
-          <button
-            type="button"
-            onClick={onReset}
-            className="mt-2 inline-flex items-center gap-2 rounded-full bg-[color:var(--color-accent)]/12 px-4 py-2 text-sm text-[color:var(--color-accent)] hover:bg-[color:var(--color-accent)]/18 transition"
-          >
-            <ArrowLeft className="size-4" />
-            Вернуться к учебной неделе
-          </button>
-          <div className="mt-2 flex items-center gap-1.5 text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-fg-muted)]">
-            <Calendar className="size-3" />
-            автообновление в Pack 3
-          </div>
+          {shift !== 0 && (
+            <button
+              type="button"
+              onClick={onReset}
+              className="mt-2 inline-flex items-center gap-2 rounded-full bg-[color:var(--color-accent)]/12 px-4 py-2 text-sm text-[color:var(--color-accent)] hover:bg-[color:var(--color-accent)]/18 transition"
+            >
+              <ArrowLeft className="size-4" />
+              К этой неделе
+            </button>
+          )}
         </div>
       </GlassCard>
     </motion.div>

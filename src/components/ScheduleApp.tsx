@@ -17,10 +17,15 @@ import { LoadingShell } from "./LoadingShell";
 import { WeekPager } from "./WeekPager";
 import { EmptyWeekState } from "./EmptyWeekState";
 import { useStore } from "@/store/useStore";
-import { useScheduleQuery } from "@/hooks/useSchedule";
+import { useScheduleQuery, useWeeksMetaQuery } from "@/hooks/useSchedule";
 import { todayInSchoolTz } from "@/lib/now";
 import { homeworkStats } from "@/lib/homework";
-import { shiftIsoDate, weekRangeOf } from "@/lib/schedule/calendar";
+import {
+  isoMondayOf,
+  isoToWeekId,
+  shiftIsoDate,
+  weekRangeOf,
+} from "@/lib/schedule/calendar";
 
 export function ScheduleApp() {
   const hydrated = useHydrated();
@@ -36,41 +41,48 @@ export function ScheduleApp() {
   const [directoryKind, setDirectoryKind] = useState<"teachers" | "rooms" | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"today" | "week" | "analytics">("today");
-  /** 0 = published week (real data); ±N = navigate that many weeks. */
+  /** 0 = today's calendar week; ±N = navigate that many weeks. */
   const [weekShift, setWeekShift] = useState(0);
 
   const todayRef = useRef<HTMLDivElement>(null);
   const weekRef = useRef<HTMLDivElement>(null);
   const analyticsRef = useRef<HTMLDivElement>(null);
 
+  const today = todayInSchoolTz();
+
+  const { data: weeksMeta } = useWeeksMetaQuery();
+
+  // The "anchor" week — Monday of today's calendar week.
+  const anchorMondayIso = useMemo(() => isoMondayOf(today.iso), [today.iso]);
+
+  // Compute the week the user is currently looking at.
+  const viewedRange = useMemo(() => {
+    const monday = shiftIsoDate(anchorMondayIso, weekShift * 7);
+    return weekRangeOf(monday);
+  }, [anchorMondayIso, weekShift]);
+
+  const viewedWeekId = useMemo(
+    () => isoToWeekId(viewedRange.weekStart),
+    [viewedRange.weekStart],
+  );
+
+  // Does the build have real data for this week?
+  const hasData = useMemo(() => {
+    if (!weeksMeta) return false;
+    return weeksMeta.available.includes(viewedWeekId);
+  }, [weeksMeta, viewedWeekId]);
+
   const { data, isLoading, error } = useScheduleQuery({
     className: selectedClass,
-    weekId: undefined,
+    weekId: hasData ? viewedWeekId : null,
   });
 
   const week = data?.schedule ?? null;
   const source = data?.source ?? null;
 
-  const today = todayInSchoolTz();
+  const visibleWeek = hasData ? week : null;
 
-  // Week navigation. The published week is whatever the parser produced.
-  // viewedRange is the [Mon, Sun] range the user is currently looking at.
-  const publishedRange = useMemo(
-    () => (week ? weekRangeOf(week.weekStart) : null),
-    [week],
-  );
-  const viewedRange = useMemo(() => {
-    if (!publishedRange) return null;
-    if (weekShift === 0) return publishedRange;
-    return weekRangeOf(shiftIsoDate(publishedRange.weekStart, weekShift * 7));
-  }, [publishedRange, weekShift]);
-  const isPublishedWeek = weekShift === 0;
-  const visibleWeek = isPublishedWeek ? week : null;
-
-  // Derive at render time — no setState in effect.
-  // If today's date is in the visible week, default to highlighting it;
-  // otherwise default to the first day in the week (so we never claim
-  // "today is Monday" when the user is on a weekend / outside the week).
+  // Default highlight: today (if in viewed week) → first day → null.
   const effectiveSelectedDate = useMemo(() => {
     if (selectedDate) return selectedDate;
     if (!visibleWeek) return null;
@@ -145,17 +157,15 @@ export function ScheduleApp() {
             transition={{ duration: 0.4, ease: "easeOut" }}
             className="space-y-8"
           >
-            {viewedRange && (
-              <WeekPager
-                range={viewedRange}
-                shift={weekShift}
-                hasData={isPublishedWeek}
-                onShift={changeWeek}
-                onReset={resetWeek}
-              />
-            )}
+            <WeekPager
+              range={viewedRange}
+              shift={weekShift}
+              hasData={hasData}
+              onShift={changeWeek}
+              onReset={resetWeek}
+            />
 
-            {isPublishedWeek ? (
+            {hasData && visibleWeek ? (
               <>
                 <Hero week={visibleWeek} group={group} className={selectedClass} />
 
@@ -198,13 +208,11 @@ export function ScheduleApp() {
                 </div>
               </>
             ) : (
-              viewedRange && (
-                <EmptyWeekState
-                  range={viewedRange}
-                  shift={weekShift}
-                  onReset={resetWeek}
-                />
-              )
+              <EmptyWeekState
+                range={viewedRange}
+                shift={weekShift}
+                onReset={resetWeek}
+              />
             )}
 
             <Footer source={source} parsedAt={week?.parsedAt} />
@@ -293,19 +301,16 @@ function Footer({
         <a
           href={source.url}
           target="_blank"
-          rel="noreferrer noopener"
-          className="hover:text-fg"
+          rel="noopener noreferrer"
+          className="hover:text-fg transition"
         >
-          источник: keo.gov39.ru
+          источник
         </a>
       )}
-      {source?.fromFixture && (
-        <span className="text-[color:var(--color-warn)]/80">
-          фикстуры · сайт-источник недоступен с этого инстанса
-        </span>
-      )}
       {parsedAt && (
-        <span className="ml-auto tabular-nums">обновлено · {parsedAt.slice(11, 16)}</span>
+        <span className="text-[color:var(--color-fg-faint)]">
+          обновлено · {new Date(parsedAt).toLocaleString("ru-RU")}
+        </span>
       )}
     </footer>
   );
