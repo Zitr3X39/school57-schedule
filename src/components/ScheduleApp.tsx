@@ -14,10 +14,13 @@ import { TopBar } from "./TopBar";
 import { BottomNav } from "./BottomNav";
 import { SelectedDay } from "./SelectedDay";
 import { LoadingShell } from "./LoadingShell";
+import { WeekPager } from "./WeekPager";
+import { EmptyWeekState } from "./EmptyWeekState";
 import { useStore } from "@/store/useStore";
 import { useScheduleQuery } from "@/hooks/useSchedule";
 import { todayInSchoolTz } from "@/lib/now";
 import { homeworkStats } from "@/lib/homework";
+import { shiftIsoDate, weekRangeOf } from "@/lib/schedule/calendar";
 
 export function ScheduleApp() {
   const hydrated = useHydrated();
@@ -33,6 +36,8 @@ export function ScheduleApp() {
   const [directoryKind, setDirectoryKind] = useState<"teachers" | "rooms" | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"today" | "week" | "analytics">("today");
+  /** 0 = published week (real data); ±N = navigate that many weeks. */
+  const [weekShift, setWeekShift] = useState(0);
 
   const todayRef = useRef<HTMLDivElement>(null);
   const weekRef = useRef<HTMLDivElement>(null);
@@ -47,13 +52,46 @@ export function ScheduleApp() {
   const source = data?.source ?? null;
 
   const today = todayInSchoolTz();
+
+  // Week navigation. The published week is whatever the parser produced.
+  // viewedRange is the [Mon, Sun] range the user is currently looking at.
+  const publishedRange = useMemo(
+    () => (week ? weekRangeOf(week.weekStart) : null),
+    [week],
+  );
+  const viewedRange = useMemo(() => {
+    if (!publishedRange) return null;
+    if (weekShift === 0) return publishedRange;
+    return weekRangeOf(shiftIsoDate(publishedRange.weekStart, weekShift * 7));
+  }, [publishedRange, weekShift]);
+  const isPublishedWeek = weekShift === 0;
+  const visibleWeek = isPublishedWeek ? week : null;
+
   // Derive at render time — no setState in effect.
-  const effectiveSelectedDate = selectedDate ?? (week ? today.iso : null);
+  // If today's date is in the visible week, default to highlighting it;
+  // otherwise default to the first day in the week (so we never claim
+  // "today is Monday" when the user is on a weekend / outside the week).
+  const effectiveSelectedDate = useMemo(() => {
+    if (selectedDate) return selectedDate;
+    if (!visibleWeek) return null;
+    const todayDay = visibleWeek.days.find((d) => d.date === today.iso);
+    if (todayDay) return todayDay.date;
+    return visibleWeek.days[0]?.date ?? null;
+  }, [selectedDate, visibleWeek, today.iso]);
 
   const hwStats = useMemo(
-    () => homeworkStats(week, group, homeworkDone),
-    [week, group, homeworkDone],
+    () => homeworkStats(visibleWeek, group, homeworkDone),
+    [visibleWeek, group, homeworkDone],
   );
+
+  function changeWeek(delta: number) {
+    setSelectedDate(null);
+    setWeekShift((s) => s + delta);
+  }
+  function resetWeek() {
+    setSelectedDate(null);
+    setWeekShift(0);
+  }
 
   function scrollToSection(id: "today" | "week" | "analytics") {
     setActiveTab(id);
@@ -107,45 +145,67 @@ export function ScheduleApp() {
             transition={{ duration: 0.4, ease: "easeOut" }}
             className="space-y-8"
           >
-            <Hero week={week} group={group} className={selectedClass} />
-
-            <QuickActions
-              group={group}
-              onSetGroup={setGroup}
-              onOpenCommand={() => setPaletteOpen(true)}
-              onScrollTo={scrollToSection}
-              onOpenTeachers={() => setDirectoryKind("teachers")}
-              onOpenRooms={() => setDirectoryKind("rooms")}
-              homeworkRemaining={hwStats.remaining}
-            />
-
-            <div ref={todayRef} className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-              <Timeline week={week} group={group} />
-              <SelectedDay
-                week={week}
-                group={group}
-                date={effectiveSelectedDate}
-                onClose={() => setSelectedDate(null)}
-                onChangeDate={(iso) => setSelectedDate(iso)}
+            {viewedRange && (
+              <WeekPager
+                range={viewedRange}
+                shift={weekShift}
+                hasData={isPublishedWeek}
+                onShift={changeWeek}
+                onReset={resetWeek}
               />
-            </div>
+            )}
 
-            <div ref={weekRef}>
-              <WeekOverview
-                week={week}
-                group={group}
-                selectedDate={selectedDate}
-                onSelectDate={(iso) => {
-                  setSelectedDate(iso);
-                  setActiveTab("today");
-                  todayRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                }}
-              />
-            </div>
+            {isPublishedWeek ? (
+              <>
+                <Hero week={visibleWeek} group={group} className={selectedClass} />
 
-            <div ref={analyticsRef}>
-              <SubjectAnalytics week={week} group={group} />
-            </div>
+                <QuickActions
+                  group={group}
+                  onSetGroup={setGroup}
+                  onOpenCommand={() => setPaletteOpen(true)}
+                  onScrollTo={scrollToSection}
+                  onOpenTeachers={() => setDirectoryKind("teachers")}
+                  onOpenRooms={() => setDirectoryKind("rooms")}
+                  homeworkRemaining={hwStats.remaining}
+                />
+
+                <div ref={todayRef} className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+                  <Timeline week={visibleWeek} group={group} />
+                  <SelectedDay
+                    week={visibleWeek}
+                    group={group}
+                    date={effectiveSelectedDate}
+                    onClose={() => setSelectedDate(null)}
+                    onChangeDate={(iso) => setSelectedDate(iso)}
+                  />
+                </div>
+
+                <div ref={weekRef}>
+                  <WeekOverview
+                    week={visibleWeek}
+                    group={group}
+                    selectedDate={selectedDate}
+                    onSelectDate={(iso) => {
+                      setSelectedDate(iso);
+                      setActiveTab("today");
+                      todayRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }}
+                  />
+                </div>
+
+                <div ref={analyticsRef}>
+                  <SubjectAnalytics week={visibleWeek} group={group} />
+                </div>
+              </>
+            ) : (
+              viewedRange && (
+                <EmptyWeekState
+                  range={viewedRange}
+                  shift={weekShift}
+                  onReset={resetWeek}
+                />
+              )
+            )}
 
             <Footer source={source} parsedAt={week?.parsedAt} />
           </motion.div>

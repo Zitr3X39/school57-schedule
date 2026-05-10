@@ -64,7 +64,10 @@ function SelectedDayPager({
   );
   const day = days[idx];
   const today = todayInSchoolTz();
-  const isToday = date === today.iso;
+  // `date` is the requested ISO; `day.date` is what we actually rendered.
+  // When the requested date is outside the week, we fall back to the first day,
+  // and the "сегодня" badge must match the rendered day, not the prop.
+  const isToday = (days[idx]?.date ?? null) === today.iso;
 
   function go(delta: number) {
     if (!onChangeDate || days.length === 0) return;
@@ -112,7 +115,7 @@ function SelectedDayPager({
               {DAY_OF_WEEK_RU[day.dayOfWeek as DayOfWeek]}
               {isToday && " · сегодня"}
             </div>
-            <h3 className="mt-1 font-display text-2xl md:text-3xl">{formatDateRu(date)}</h3>
+            <h3 className="mt-1 font-display text-2xl md:text-3xl">{formatDateRu(day.date)}</h3>
           </div>
           <button
             type="button"
