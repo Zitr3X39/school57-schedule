@@ -80,13 +80,13 @@ export function ClassPicker({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="rounded-full p-2 text-[color:var(--color-fg-muted)] hover:text-white hover:bg-white/5"
+                  className="rounded-full p-2 text-[color:var(--color-fg-muted)] hover:text-fg hover:bg-surface-2"
                 >
                   <X className="size-4" />
                 </button>
               </div>
 
-              <div className="mt-6 flex items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3">
+              <div className="mt-6 flex items-center gap-2 rounded-2xl border border-surface bg-surface px-4 py-3">
                 <Search className="size-4 text-[color:var(--color-fg-muted)]" />
                 <input
                   ref={inputRef}
@@ -104,7 +104,7 @@ export function ClassPicker({
                     {Array.from({ length: 24 }).map((_, i) => (
                       <div
                         key={i}
-                        className="shimmer h-10 rounded-xl bg-white/5"
+                        className="shimmer h-10 rounded-xl bg-surface"
                       />
                     ))}
                   </div>
@@ -133,7 +133,7 @@ export function ClassPicker({
                                   onSelect(c);
                                   onClose();
                                 }}
-                                className="h-10 rounded-xl border border-white/8 bg-white/[0.025] hover:border-[color:var(--color-accent)]/40 hover:bg-[color:var(--color-accent)]/8 transition tabular-nums font-medium"
+                                className="h-10 rounded-xl border border-surface bg-surface hover:border-[color:var(--color-accent)]/40 hover:bg-[color:var(--color-accent)]/8 transition tabular-nums font-medium"
                               >
                                 {c}
                               </button>

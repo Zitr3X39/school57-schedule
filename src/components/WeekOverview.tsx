@@ -43,7 +43,7 @@ export function WeekOverview({ week, group, selectedDate, onSelectDate }: Props)
               onClick={() => onSelectDate(d.date)}
               className={cn(
                 "group relative text-left rounded-2xl p-3.5 border transition overflow-hidden",
-                "border-white/8 bg-white/[0.025] hover:bg-white/[0.045] hover:border-white/15",
+                "border-surface bg-surface hover:bg-surface-2 hover:border-surface-strong",
                 active && "border-[color:var(--color-accent)]/50 bg-[color:var(--color-accent)]/8",
                 d.isToday && "border-[color:var(--color-accent)]/40",
               )}
@@ -65,7 +65,7 @@ export function WeekOverview({ week, group, selectedDate, onSelectDate }: Props)
                   {d.subjects.slice(0, 2).map((s) => (
                     <div
                       key={s}
-                      className="text-[11px] text-white/70 truncate"
+                      className="text-[11px] text-fg-soft truncate"
                       title={s}
                     >
                       {s}

@@ -96,14 +96,14 @@ export function QuickActions({
             "group inline-flex items-center gap-2 rounded-full px-3.5 py-1.5",
             "text-[12.5px] tracking-tight transition border",
             a.highlight
-              ? "border-[color:var(--color-accent)]/30 bg-[color:var(--color-accent)]/8 text-white hover:border-[color:var(--color-accent)]/60"
-              : "border-white/8 bg-white/[0.025] text-white/85 hover:bg-white/[0.05] hover:border-white/15",
+              ? "border-[color:var(--color-accent)]/30 bg-[color:var(--color-accent)]/8 text-fg hover:border-[color:var(--color-accent)]/60"
+              : "border-surface bg-surface text-fg-soft hover:bg-surface-2 hover:border-surface-strong",
           )}
         >
           <a.icon className="size-3.5" />
           <span>{a.label}</span>
           {a.badge && (
-            <span className="ml-1 rounded px-1.5 py-0.5 text-[10px] tabular-nums bg-white/5 text-[color:var(--color-fg-muted)] border border-white/10 font-mono">
+            <span className="ml-1 rounded px-1.5 py-0.5 text-[10px] tabular-nums bg-surface text-[color:var(--color-fg-muted)] border border-surface font-mono">
               {a.badge}
             </span>
           )}
@@ -114,7 +114,7 @@ export function QuickActions({
         <span className="text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-fg-muted)] mr-1.5 inline-flex items-center gap-1">
           <Sparkles className="size-3" /> группа
         </span>
-        <div className="inline-flex rounded-full border border-white/10 bg-white/[0.03] p-0.5">
+        <div className="inline-flex rounded-full border border-surface bg-surface p-0.5">
           {([1, 2] as const).map((g) => (
             <button
               key={g}
@@ -123,8 +123,8 @@ export function QuickActions({
               className={cn(
                 "px-3 py-1 rounded-full text-xs font-medium transition tabular-nums",
                 group === g
-                  ? "bg-gradient-to-r from-[color:var(--color-accent)]/30 to-[color:var(--color-accent-2)]/30 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]"
-                  : "text-white/65 hover:text-white",
+                  ? "bg-gradient-to-r from-[color:var(--color-accent)]/30 to-[color:var(--color-accent-2)]/30 text-fg shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]"
+                  : "text-fg-muted hover:text-fg",
               )}
             >
               {g}

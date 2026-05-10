@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Manrope, Onest, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
+import { ThemeManager } from "@/components/ThemeManager";
 
 const onest = Onest({
   subsets: ["latin", "cyrillic"],
@@ -50,6 +51,11 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
+        <ThemeManager />
+        {/* Animated aurora background — three soft drifting blobs */}
+        <div aria-hidden className="aurora-bg">
+          <span />
+        </div>
         <Providers>{children}</Providers>
       </body>
     </html>
