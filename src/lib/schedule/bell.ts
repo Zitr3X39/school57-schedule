@@ -1,24 +1,23 @@
 import type { BellSchedule, TimeOfDay } from "./types";
 
 /**
- * Default bell schedule for МАОУ СОШ №57 г. Калининград.
- * Lessons are 40 minutes with breaks. The user can override per device via
- * the settings drawer (persisted in localStorage).
+ * Bell schedule for МАОУ СОШ №57 г. Калининград.
  *
- * If we ever discover the school publishes its bell schedule somewhere, we
- * should swap this with the real one — until then this is a sensible default
- * that mirrors typical Калининград schools.
+ * Lessons are 40 minutes. Breaks are normally 10 minutes, except
+ * after lessons 2, 3, 6 and 8 — those are 20-minute breaks (lunch
+ * windows). Source: confirmed by school administration via the
+ * project owner.
  */
 export const DEFAULT_BELL_SCHEDULE: BellSchedule = [
-  { lessonNumber: 1, startTime: "08:00", endTime: "08:40" },
-  { lessonNumber: 2, startTime: "08:50", endTime: "09:30" },
-  { lessonNumber: 3, startTime: "09:50", endTime: "10:30" },
-  { lessonNumber: 4, startTime: "10:50", endTime: "11:30" },
-  { lessonNumber: 5, startTime: "11:40", endTime: "12:20" },
-  { lessonNumber: 6, startTime: "12:30", endTime: "13:10" },
-  { lessonNumber: 7, startTime: "13:20", endTime: "14:00" },
-  { lessonNumber: 8, startTime: "14:10", endTime: "14:50" },
-  { lessonNumber: 9, startTime: "15:00", endTime: "15:40" },
+  { lessonNumber: 1, startTime: "08:00", endTime: "08:40" }, // → 10 min
+  { lessonNumber: 2, startTime: "08:50", endTime: "09:30" }, // → 20 min
+  { lessonNumber: 3, startTime: "09:50", endTime: "10:30" }, // → 20 min
+  { lessonNumber: 4, startTime: "10:50", endTime: "11:30" }, // → 10 min
+  { lessonNumber: 5, startTime: "11:40", endTime: "12:20" }, // → 10 min
+  { lessonNumber: 6, startTime: "12:30", endTime: "13:10" }, // → 20 min
+  { lessonNumber: 7, startTime: "13:30", endTime: "14:10" }, // → 10 min
+  { lessonNumber: 8, startTime: "14:20", endTime: "15:00" }, // → 20 min
+  { lessonNumber: 9, startTime: "15:20", endTime: "16:00" },
 ];
 
 export function bellFor(

@@ -7,6 +7,7 @@ import { fetchClassPage, fetchIndexPage } from "./fetcher";
 import { parseClassPage } from "./parser/class-page";
 import { parseIndexPage } from "./parser/index-page";
 import { applyReplacements } from "./normalizer";
+import { fillClassroomHourGaps } from "./homeroom";
 import { validateSchedule } from "./validator";
 import {
   CLASSES_TTL_SECONDS,
@@ -68,7 +69,8 @@ export async function getSchedule(args: GetScheduleArgs): Promise<ScheduleResult
     sourceUrl: fetched.url,
   });
   const withReplacements = applyReplacements(parsed.schedule);
-  const validated = validateSchedule(withReplacements, parsed.report);
+  const withClassroomHours = fillClassroomHourGaps(withReplacements);
+  const validated = validateSchedule(withClassroomHours, parsed.report);
   scheduleCache.set(cacheKey, validated.schedule, SCHEDULE_TTL_SECONDS);
   return {
     schedule: validated.schedule,
