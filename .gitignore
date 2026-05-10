@@ -41,5 +41,5 @@ yarn-error.log*
 next-env.d.ts
 public/data/
 out/
-test-plan.md
-test-report.md
+test-plan*.md
+test-report*.md

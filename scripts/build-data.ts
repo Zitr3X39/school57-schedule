@@ -16,6 +16,7 @@ import path from "node:path";
 import { parseIndexPage } from "../src/lib/schedule/parser/index-page";
 import { parseClassPage } from "../src/lib/schedule/parser/class-page";
 import { applyReplacements } from "../src/lib/schedule/normalizer";
+import { fillClassroomHourGaps } from "../src/lib/schedule/homeroom";
 import { validateSchedule } from "../src/lib/schedule/validator";
 import type { SchoolClassesIndex, WeekSchedule } from "../src/lib/schedule/types";
 
@@ -97,7 +98,8 @@ async function main() {
       sourceUrl: `https://keo.gov39.ru/data/schedule/klgd1548141601/class.php?class=${encodeURIComponent(className)}&school_uid=klgd1548141601`,
     });
     const withReplacements = applyReplacements(parsed.schedule);
-    const validated = validateSchedule(withReplacements, parsed.report);
+    const withClassroomHours = fillClassroomHourGaps(withReplacements);
+    const validated = validateSchedule(withClassroomHours, parsed.report);
     const isDemo = !realDataClasses.has(className);
     const out: ScheduleFile = {
       schedule: validated.schedule,

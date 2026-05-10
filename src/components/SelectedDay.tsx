@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { motion, AnimatePresence, type PanInfo } from "framer-motion";
 import {
+  Check,
   ChevronLeft,
   ChevronRight,
   GraduationCap,
@@ -16,6 +17,8 @@ import { DAY_OF_WEEK_RU } from "@/lib/schedule/types";
 import { cn, formatDateRu } from "@/lib/utils";
 import { todayInSchoolTz } from "@/lib/now";
 import { subjectGradient } from "@/lib/subject-colors";
+import { useStore } from "@/store/useStore";
+import { lessonHasHomework } from "@/lib/homework";
 
 interface Props {
   week: WeekSchedule | null;
@@ -61,7 +64,10 @@ function SelectedDayPager({
   );
   const day = days[idx];
   const today = todayInSchoolTz();
-  const isToday = date === today.iso;
+  // `date` is the requested ISO; `day.date` is what we actually rendered.
+  // When the requested date is outside the week, we fall back to the first day,
+  // and the "сегодня" badge must match the rendered day, not the prop.
+  const isToday = (days[idx]?.date ?? null) === today.iso;
 
   function go(delta: number) {
     if (!onChangeDate || days.length === 0) return;
@@ -109,7 +115,7 @@ function SelectedDayPager({
               {DAY_OF_WEEK_RU[day.dayOfWeek as DayOfWeek]}
               {isToday && " · сегодня"}
             </div>
-            <h3 className="mt-1 font-display text-2xl md:text-3xl">{formatDateRu(date)}</h3>
+            <h3 className="mt-1 font-display text-2xl md:text-3xl">{formatDateRu(day.date)}</h3>
           </div>
           <button
             type="button"
@@ -200,9 +206,15 @@ function SelectedDayPager({
 
 function LessonCardSimple({ lesson }: { lesson: Lesson }) {
   const grad = subjectGradient(lesson.subject);
+  const hasHw = lessonHasHomework(lesson);
+  const done = useStore((s) => (hasHw ? Boolean(s.homeworkDone[lesson.id]) : false));
+  const toggle = useStore((s) => s.toggleHomework);
   return (
     <div
-      className="relative overflow-hidden rounded-2xl border border-surface bg-surface px-4 py-3 transition-colors hover:bg-surface-2"
+      className={cn(
+        "relative overflow-hidden rounded-2xl border border-surface bg-surface px-4 py-3 transition-colors hover:bg-surface-2",
+        done && "opacity-60",
+      )}
       style={{
         // Tinted left border using the subject's hue
         borderLeft: `3px solid ${grad.solid}`,
@@ -219,7 +231,14 @@ function LessonCardSimple({ lesson }: { lesson: Lesson }) {
         <span className="text-[11px] tabular-nums uppercase tracking-[0.16em] text-fg-muted w-7">
           {lesson.lessonNumber}
         </span>
-        <span className="font-display text-lg flex-1 truncate">{lesson.subject}</span>
+        <span
+          className={cn(
+            "font-display text-lg flex-1 truncate",
+            done && "line-through decoration-1 decoration-fg-muted",
+          )}
+        >
+          {lesson.subject}
+        </span>
         <span className="tabular-nums text-xs text-fg-soft">
           {lesson.startTime}–{lesson.endTime}
         </span>
@@ -246,11 +265,66 @@ function LessonCardSimple({ lesson }: { lesson: Lesson }) {
           </span>
         )}
       </div>
-      {lesson.notes && (
-        <div className="relative mt-1.5 ml-10 text-[12px] text-fg-soft">
-          {lesson.notes}
+      {hasHw && (
+        <div className="relative mt-2 ml-10 flex items-start gap-2">
+          <HomeworkCheckbox
+            done={done}
+            onToggle={() => toggle(lesson.id)}
+            color={grad.solid}
+          />
+          <span
+            className={cn(
+              "flex-1 text-[12px] text-fg-soft leading-snug pt-px",
+              done && "line-through decoration-1 decoration-fg-muted text-fg-muted",
+            )}
+          >
+            {lesson.notes}
+          </span>
         </div>
       )}
     </div>
+  );
+}
+
+interface HomeworkCheckboxProps {
+  done: boolean;
+  onToggle: () => void;
+  /** Subject hex color used as the filled accent. */
+  color: string;
+}
+
+export function HomeworkCheckbox({ done, onToggle, color }: HomeworkCheckboxProps) {
+  return (
+    <button
+      type="button"
+      role="checkbox"
+      aria-checked={done}
+      aria-label={done ? "Снять отметку" : "Отметить как сделано"}
+      onClick={(e) => {
+        e.stopPropagation();
+        onToggle();
+      }}
+      className={cn(
+        "relative grid size-[18px] shrink-0 place-items-center rounded-md border transition-colors",
+        done
+          ? "border-transparent"
+          : "border-[color:var(--border-strong)] hover:border-fg-muted bg-surface-2",
+      )}
+      style={done ? { backgroundColor: color } : undefined}
+    >
+      <AnimatePresence initial={false}>
+        {done && (
+          <motion.span
+            key="check"
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            transition={{ type: "spring", stiffness: 360, damping: 22 }}
+          >
+            <Check className="size-3 text-[#0b0e16]" strokeWidth={3} />
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </button>
   );
 }

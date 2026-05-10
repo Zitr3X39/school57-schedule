@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useMemo } from "react";
 import { GraduationCap, MapPin, RefreshCw, BookOpen } from "lucide-react";
 import { GlassCard } from "./GlassCard";
+import { HomeworkCheckbox } from "./SelectedDay";
 import { useNow } from "@/hooks/useNow";
 import { deriveStatus, todayLessons } from "@/lib/schedule/aggregate";
 import type { WeekSchedule } from "@/lib/schedule/types";
@@ -11,6 +12,8 @@ import { cn, formatCountdown } from "@/lib/utils";
 import { timeToMinutes } from "@/lib/schedule/bell";
 import { todayInSchoolTz, nowMinutesInSchoolTz } from "@/lib/now";
 import { subjectGradient } from "@/lib/subject-colors";
+import { useStore } from "@/store/useStore";
+import { lessonHasHomework } from "@/lib/homework";
 
 interface TimelineProps {
   week: WeekSchedule | null;
@@ -117,6 +120,9 @@ function LessonRow({ lesson }: LessonRowProps) {
   const isCurrent = lesson.status === "current";
   const isPast = lesson.status === "past";
   const grad = subjectGradient(lesson.subject);
+  const hasHw = lessonHasHomework(lesson);
+  const done = useStore((s) => (hasHw ? Boolean(s.homeworkDone[lesson.id]) : false));
+  const toggle = useStore((s) => s.toggleHomework);
   return (
     <div
       className={cn(
@@ -190,9 +196,21 @@ function LessonRow({ lesson }: LessonRowProps) {
             </span>
           )}
         </div>
-        {lesson.notes && (
-          <div className="mt-1.5 text-[12px] text-fg-muted">
-            {lesson.notes}
+        {hasHw && (
+          <div className="mt-2 flex items-start gap-2">
+            <HomeworkCheckbox
+              done={done}
+              onToggle={() => toggle(lesson.id)}
+              color={grad.solid}
+            />
+            <span
+              className={cn(
+                "flex-1 text-[12px] text-fg-muted leading-snug pt-px",
+                done && "line-through decoration-1 decoration-fg-muted/70 text-fg-muted/70",
+              )}
+            >
+              {lesson.notes}
+            </span>
           </div>
         )}
       </div>

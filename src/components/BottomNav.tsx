@@ -19,7 +19,7 @@ export function BottomNav({ active, onChange, onOpenCommand, onOpenClasses }: Bo
   return (
     <nav
       aria-label="Нижняя навигация"
-      className="lg:hidden fixed bottom-3 inset-x-3 z-30 rounded-2xl border border-surface bg-[#0a0e1c]/80 backdrop-blur-2xl shadow-[0_15px_40px_-12px_rgba(0,0,0,0.7)]"
+      className="lg:hidden fixed bottom-3 inset-x-3 z-30 rounded-2xl border border-surface bg-[color:var(--bg-elev)]/85 backdrop-blur-2xl shadow-[0_15px_40px_-12px_rgba(0,0,0,0.7)]"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="grid grid-cols-5 items-center gap-1 p-1.5">
